@@ -137,7 +137,7 @@ cdstring CICalendarVTimezone::GetTimezoneDescriptor(const CICalendarDateTime& dt
 				tzoffset = -tzoffset;
 				negative = true;
 			}
-			::snprintf(result, 32, "%s%02ld%02ld", negative ? "-" : "+", tzoffset / (60 * 60), (tzoffset / 60) % 60);
+			::snprintf(result, 32, "%s%02d%02d", negative ? "-" : "+", tzoffset / (60 * 60), (tzoffset / 60) % 60);
 		}
 		else
 		{

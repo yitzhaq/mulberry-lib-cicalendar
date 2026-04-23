@@ -755,17 +755,17 @@ cdstring CICalendarDateTime::GetTime(bool with_seconds, bool am_pm, bool tzid) c
 			adjusted_hour = 12;
 		
 		if (with_seconds)
-			::snprintf(buf, 32, "%ld:%02ld:%02ld", adjusted_hour, mMinutes, mSeconds);
+			::snprintf(buf, 32, "%d:%02d:%02d", adjusted_hour, mMinutes, mSeconds);
 		else
-			::snprintf(buf, 32, "%ld:%02ld", adjusted_hour, mMinutes);
+			::snprintf(buf, 32, "%d:%02d", adjusted_hour, mMinutes);
 		buf += (am ? " AM" : " PM");
 	}
 	else
 	{
 		if (with_seconds)
-			::snprintf(buf, 32, "%02ld:%02ld:%02ld", mHours, mMinutes, mSeconds);
+			::snprintf(buf, 32, "%02d:%02d:%02d", mHours, mMinutes, mSeconds);
 		else
-			::snprintf(buf, 32, "%02ld:%02ld", mHours, mMinutes);
+			::snprintf(buf, 32, "%02d:%02d", mHours, mMinutes);
 	}
 	
 	if (tzid)

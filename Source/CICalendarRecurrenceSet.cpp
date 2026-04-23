@@ -231,13 +231,12 @@ void CICalendarRecurrenceSet::ExcludeFutureRecurrence(const CICalendarDateTime& 
 
 	// Remove RDATES on or after start
 	mRdates.erase(std::remove_if(mRdates.begin(), mRdates.end(), std::bind2nd(std::greater_equal<CICalendarDateTime>(), exclude)), mRdates.end());
-	for(CICalendarPeriodList::iterator iter = mRperiods.begin(); iter != mRperiods.end(); iter++)
+	for(CICalendarPeriodList::iterator iter = mRperiods.begin(); iter != mRperiods.end(); )
 	{
 		if (*iter > exclude)
-		{
-			mRperiods.erase(iter);
-			iter--;
-		}
+			iter = mRperiods.erase(iter);
+		else
+			++iter;
 	}
 }
 

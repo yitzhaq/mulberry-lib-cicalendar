@@ -1261,7 +1261,7 @@ void CICalendarRecurrence::ByMonthExpand(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByWeekNoExpand(CICalendarDateTimeList& dates) const
@@ -1279,7 +1279,7 @@ void CICalendarRecurrence::ByWeekNoExpand(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByYearDayExpand(CICalendarDateTimeList& dates) const
@@ -1297,7 +1297,7 @@ void CICalendarRecurrence::ByYearDayExpand(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByMonthDayExpand(CICalendarDateTimeList& dates) const
@@ -1315,7 +1315,7 @@ void CICalendarRecurrence::ByMonthDayExpand(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByDayExpandYearly(CICalendarDateTimeList& dates) const
@@ -1348,7 +1348,7 @@ void CICalendarRecurrence::ByDayExpandYearly(CICalendarDateTimeList& dates) cons
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByDayExpandMonthly(CICalendarDateTimeList& dates) const
@@ -1381,7 +1381,7 @@ void CICalendarRecurrence::ByDayExpandMonthly(CICalendarDateTimeList& dates) con
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByDayExpandWeekly(CICalendarDateTimeList& dates) const
@@ -1417,7 +1417,7 @@ void CICalendarRecurrence::ByDayExpandWeekly(CICalendarDateTimeList& dates) cons
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByHourExpand(CICalendarDateTimeList& dates) const
@@ -1435,7 +1435,7 @@ void CICalendarRecurrence::ByHourExpand(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByMinuteExpand(CICalendarDateTimeList& dates) const
@@ -1453,7 +1453,7 @@ void CICalendarRecurrence::ByMinuteExpand(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::BySecondExpand(CICalendarDateTimeList& dates) const
@@ -1471,7 +1471,7 @@ void CICalendarRecurrence::BySecondExpand(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 #pragma mark ____________________________BYxxx limits
@@ -1492,7 +1492,7 @@ void CICalendarRecurrence::ByMonthLimit(CICalendarDateTimeList& dates) const
 			output.push_back(*iter1);
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByWeekNoLimit(CICalendarDateTimeList& dates) const
@@ -1511,7 +1511,7 @@ void CICalendarRecurrence::ByWeekNoLimit(CICalendarDateTimeList& dates) const
 			output.push_back(*iter1);
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByMonthDayLimit(CICalendarDateTimeList& dates) const
@@ -1530,7 +1530,7 @@ void CICalendarRecurrence::ByMonthDayLimit(CICalendarDateTimeList& dates) const
 			output.push_back(*iter1);
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByDayLimit(CICalendarDateTimeList& dates) const
@@ -1549,7 +1549,7 @@ void CICalendarRecurrence::ByDayLimit(CICalendarDateTimeList& dates) const
 			output.push_back(*iter1);
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByHourLimit(CICalendarDateTimeList& dates) const
@@ -1568,7 +1568,7 @@ void CICalendarRecurrence::ByHourLimit(CICalendarDateTimeList& dates) const
 			output.push_back(*iter1);
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::ByMinuteLimit(CICalendarDateTimeList& dates) const
@@ -1587,7 +1587,7 @@ void CICalendarRecurrence::ByMinuteLimit(CICalendarDateTimeList& dates) const
 			output.push_back(*iter1);
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::BySecondLimit(CICalendarDateTimeList& dates) const
@@ -1606,7 +1606,7 @@ void CICalendarRecurrence::BySecondLimit(CICalendarDateTimeList& dates) const
 			output.push_back(*iter1);
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }
 
 void CICalendarRecurrence::BySetPosLimit(CICalendarDateTimeList& dates) const
@@ -1633,5 +1633,5 @@ void CICalendarRecurrence::BySetPosLimit(CICalendarDateTimeList& dates) const
 		}
 	}
 	
-	dates = output;
+	dates = std::move(output);
 }

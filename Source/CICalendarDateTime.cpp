@@ -229,9 +229,11 @@ void CICalendarDateTime::SetWeekNo(int32_t weekno)
 	case eWednesday:
 	case eThursday:
 		SetYearDay((weekno - 1) * 7 - first_day);
+		break;
 	case eFriday:
 	case eSaturday:
 		SetYearDay((weekno - 1) * 7 - first_day + 7);
+		break;
 	}
 }
 

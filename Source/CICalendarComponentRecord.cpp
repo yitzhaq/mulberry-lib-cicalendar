@@ -208,7 +208,9 @@ void CICalendarComponentRecord::ReadXML(CICalendarComponentRecordDB& recorder, c
 		action = eRemoved;
 	else if (temp == cXMLAttribute_action_removedadded)
 		action = eRemovedAdded;
-	
+	else
+		return;
+
 	// Get mapkey
 	cdstring mapkey;
 	if (!xmlnode->AttributeValue(cXMLAttribute_mapkey, mapkey))

@@ -187,17 +187,21 @@ void CICalendarRecurrence::Parse(const cdstring& data)
 
 	// Look for FREQ= with delimiter
 	{
-		std::auto_ptr<char> freq(::strduptokenstr(&p, ";"));
-		if (freq.get() == NULL)
+		char* freq = ::strduptokenstr(&p, ";");
+		if (freq == NULL)
 			return;
 
 		// Make sure it is the token we expect
-		if (::strncmp(freq.get(), cICalValue_RECUR_FREQ, cICalValue_RECUR_FREQ_LEN) != 0)
+		if (::strncmp(freq, cICalValue_RECUR_FREQ, cICalValue_RECUR_FREQ_LEN) != 0)
+		{
+			::free(freq);
 			return;
-		const char* q = freq.get() + cICalValue_RECUR_FREQ_LEN;
+		}
+		const char* q = freq + cICalValue_RECUR_FREQ_LEN;
 
 		// Get the FREQ value
 		unsigned long index = ::strindexfind(q, cFreqMap, cUnknownIndex);
+		::free(freq);
 		if (index == cUnknownIndex)
 			return;
 		mFreq = static_cast<ERecurrence_FREQ>(index);
@@ -207,17 +211,19 @@ void CICalendarRecurrence::Parse(const cdstring& data)
 	{
 		// Get next token
 		p++;
-		std::auto_ptr<char> item(::strduptokenstr(&p, ";"));
-		if (item.get() == NULL)
+		char* item_raw = ::strduptokenstr(&p, ";");
+		if (item_raw == NULL)
 			return;
-		
+		cdstring item(item_raw);
+		::free(item_raw);
+
 		// Determine token type
-		unsigned long index = ::strnindexfind(item.get(), cRecurMap, cUnknownIndex);
+		unsigned long index = ::strnindexfind(item.c_str(), cRecurMap, cUnknownIndex);
 		if (index == cUnknownIndex)
 			return;
-		
+
 		// Parse remainder based on index
-		const char* q = strchr(item.get(), '=') + 1;
+		const char* q = strchr(item.c_str(), '=') + 1;
 		
 		switch(index)
 		{

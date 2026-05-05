@@ -173,7 +173,10 @@ void CICalendarComponentRecur::Finalise()
 		mMapKey = MapKey(mUID, mRecurrenceID.GetText());
 		
 		// Also get the RANGE attribute
-		const CICalendarAttributeMap& attrs = (*GetProperties().find(cICalProperty_RECURRENCE_ID)).second.GetAttributes();
+		CICalendarPropertyMap::const_iterator rid = GetProperties().find(cICalProperty_RECURRENCE_ID);
+		if (rid == GetProperties().end())
+			return;
+		const CICalendarAttributeMap& attrs = (*rid).second.GetAttributes();
 		CICalendarAttributeMap::const_iterator found = attrs.find(cICalAttribute_RANGE);
 		if (found != attrs.end())
 		{

@@ -647,7 +647,10 @@ void CITIPProcessor::ProcessCalDAVComponent(CICalendarComponent* comp)
 	CICalendar cal;
 	
 	// Add the METHOD property copied from X-METHOD
-	CICalendarProperty method(comp->GetProperties().find(cICalProperty_X_PRIVATE_METHOD)->second);
+	CICalendarPropertyMap::const_iterator method_iter = comp->GetProperties().find(cICalProperty_X_PRIVATE_METHOD);
+	if (method_iter == comp->GetProperties().end())
+		return;
+	CICalendarProperty method((*method_iter).second);
 	method.SetName(cICalProperty_METHOD);
 	cal.AddProperty(method);
 	
@@ -802,9 +805,13 @@ void CITIPProcessor::ClearITIPRequest(CICalendarComponent& comp)
 			if (itip.compare(cICalAttribute_RSVP_TRUE, true) == 0)
 			{
 				// Remove the attribute
-				CICalendarAttribute& attr_mod = const_cast<CICalendarAttribute&>((*prop.GetAttributes().find(cICalAttribute_ATTENDEE_X_NEEDS_ITIP)).second);
-				attr_mod.GetValues().clear();
-				attr_mod.AddValue(cICalAttribute_RSVP_FALSE);
+				CICalendarAttributeMap::const_iterator attr_iter = prop.GetAttributes().find(cICalAttribute_ATTENDEE_X_NEEDS_ITIP);
+				if (attr_iter != prop.GetAttributes().end())
+				{
+					CICalendarAttribute& attr_mod = const_cast<CICalendarAttribute&>((*attr_iter).second);
+					attr_mod.GetValues().clear();
+					attr_mod.AddValue(cICalAttribute_RSVP_FALSE);
+				}
 			}
 		}
 	}
@@ -1869,7 +1876,10 @@ bool CITIPProcessor::GetOrganiserAddress(const CICalendarComponent* comp, CCalen
 	{
 		caddr.SetAddress(org);
 
-		const CICalendarProperty& prop = comp->GetProperties().find(cICalProperty_ORGANIZER)->second;
+		CICalendarPropertyMap::const_iterator prop_iter = comp->GetProperties().find(cICalProperty_ORGANIZER);
+		if (prop_iter == comp->GetProperties().end())
+			return false;
+		const CICalendarProperty& prop = (*prop_iter).second;
 		if (prop.HasAttribute(cICalAttribute_CN))
 		{
 			cdstring name = prop.GetAttributeValue(cICalAttribute_CN);

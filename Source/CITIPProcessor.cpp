@@ -864,14 +864,14 @@ bool CITIPProcessor::ReceivePublish(const CICalendar& cal)
 			{
 				CICalendarRef calref = found->GetCalendar();
 				CICalendar* calcopy = CICalendar::GetICalendar(calref);
+				if (!calcopy)
+					continue;
 
 				// Ask the user whether they want to accept it
 				bool change_it = true;
 				if (!update_always)
 				{
-					cdstring calname;
-					if (calcopy != NULL)
-						calname = calcopy->GetName();
+					cdstring calname = calcopy->GetName();
 					
 					cdstring summary = fevent->GetSummary();
 
@@ -991,10 +991,12 @@ bool CITIPProcessor::ReceiveRequest(const CICalendar& cal, const calstore::CCale
 			{
 				CICalendarRef calref = found->GetCalendar();
 				CICalendar* calcopy = CICalendar::GetICalendar(calref);
+				if (!calcopy)
+					continue;
 
 				// Ask the user whether they want to accept it
 				bool change_it = true;
-				
+
 				// See if the new one is a reschedule as we may need to reprocess it for timing
 				if (!CheckForReschedule(fevent, vevent))
 				{
@@ -1309,6 +1311,8 @@ bool CITIPProcessor::ReceiveCancel(const CICalendar& cal, const calstore::CCalen
 			{
 				CICalendarRef calref = found->GetCalendar();
 				CICalendar* calcopy = CICalendar::GetICalendar(calref);
+				if (!calcopy)
+					continue;
 
 				{
 					// See if we are cancelling the entire set or just one instance
@@ -1429,6 +1433,8 @@ bool CITIPProcessor::ReceiveReply(const CICalendar& cal, const calstore::CCalend
 			{
 				CICalendarRef calref = found->GetCalendar();
 				CICalendar* calcopy = CICalendar::GetICalendar(calref);
+				if (!calcopy)
+					continue;
 
 				// Determine response status
 				cdstring request_status;

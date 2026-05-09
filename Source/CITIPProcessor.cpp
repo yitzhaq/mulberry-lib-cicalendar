@@ -669,6 +669,8 @@ void CITIPProcessor::ProcessCalDAVComponent(CICalendarComponent* comp)
 	
 	const CICalendarRef calref = comp->GetCalendar();
 	const CICalendar* calp = CICalendar::GetICalendar(calref);
+	if (!calp)
+		return;
 	const calstore::CCalendarStoreNode* node = calstore::CCalendarStoreManager::sCalendarStoreManager->GetNode(calp);
 	const calstore::CCalendarProtocol* proto = node->GetProtocol();
 	const CIdentity* tied_identity = calstore::CCalendarStoreManager::sCalendarStoreManager->GetTiedIdentity(calp);

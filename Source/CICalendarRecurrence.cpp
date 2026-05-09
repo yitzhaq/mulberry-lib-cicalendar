@@ -194,14 +194,14 @@ void CICalendarRecurrence::Parse(const cdstring& data)
 		// Make sure it is the token we expect
 		if (::strncmp(freq, cICalValue_RECUR_FREQ, cICalValue_RECUR_FREQ_LEN) != 0)
 		{
-			::free(freq);
+			delete[] freq;
 			return;
 		}
 		const char* q = freq + cICalValue_RECUR_FREQ_LEN;
 
 		// Get the FREQ value
 		unsigned long index = ::strindexfind(q, cFreqMap, cUnknownIndex);
-		::free(freq);
+		delete[] freq;
 		if (index == cUnknownIndex)
 			return;
 		mFreq = static_cast<ERecurrence_FREQ>(index);
@@ -215,7 +215,7 @@ void CICalendarRecurrence::Parse(const cdstring& data)
 		if (item_raw == NULL)
 			return;
 		cdstring item(item_raw);
-		::free(item_raw);
+		delete[] item_raw;
 
 		// Determine token type
 		unsigned long index = ::strnindexfind(item.c_str(), cRecurMap, cUnknownIndex);

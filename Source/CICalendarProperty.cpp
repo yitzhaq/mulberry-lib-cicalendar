@@ -328,13 +328,13 @@ bool CICalendarProperty::Parse(cdstring& data)
 		char* prop_name = ::strduptokenstr(&p, ";:");
 		if ((prop_name == NULL) || (*p == 0))
 		{
-			::free(prop_name);
+			delete[] prop_name;
 			return false;
 		}
 
 		// We have the name
 		mName.assign(prop_name);
-		::free(prop_name);
+		delete[] prop_name;
 	}
 
 	// Now loop getting data
@@ -360,8 +360,8 @@ bool CICalendarProperty::Parse(cdstring& data)
 				// Now add attribute value
 				CICalendarAttribute attrvalue(attribute_name, attribute_value);
 				mAttributes.insert(CICalendarAttributeMap::value_type(attrvalue.GetName(), attrvalue));
-				::free(attribute_name);
-				::free(attribute_value);
+				delete[] attribute_name;
+				delete[] attribute_value;
 
 				// Look for additional values
 				while(*p == ',')
@@ -370,7 +370,7 @@ bool CICalendarProperty::Parse(cdstring& data)
 					char* attribute_value2 = ::strduptokenstr(&p, ":;,");
 					if (attribute_value2 != NULL)
 						attrvalue.AddValue(attribute_value2);
-					::free(attribute_value2);
+					delete[] attribute_value2;
 				}
 			}
 			break;

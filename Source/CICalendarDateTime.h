@@ -229,7 +229,7 @@ private:
 	void Changed() const
 		{ mPosixTime.first = false; }
 	
-	int32_t	DaysSince1970() const;
+	int64_t	DaysSince1970() const;
 };
 
 typedef std::vector<CICalendarDateTime> CICalendarDateTimeList;

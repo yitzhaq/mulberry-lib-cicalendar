@@ -130,7 +130,7 @@ CICalendarDuration CICalendarDateTime::operator-(const CICalendarDateTime& date)
 	else
 	{
 		// Do diff of date-time in seconds
-		int32_t diff = GetPosixTime() - date.GetPosixTime();
+		int64_t diff = GetPosixTime() - date.GetPosixTime();
 		return CICalendarDuration(diff);
 	}
 }
@@ -358,7 +358,7 @@ bool CICalendarDateTime::IsDayOfWeekInMonth(int32_t offset, EDayOfWeek day) cons
 CICalendarDateTime::EDayOfWeek CICalendarDateTime::GetDayOfWeek() const
 {
 	// Count days since 01-Jan-1970 which was a Thursday
-	int32_t result = eThursday + DaysSince1970();
+	int64_t result = eThursday + DaysSince1970();
 	result %= 7;
 	if (result < 0)
 		result += 7;
@@ -471,10 +471,10 @@ int64_t CICalendarDateTime::GetPosixTime() const
 	return mPosixTime.second;
 }
 
-int32_t	CICalendarDateTime::DaysSince1970() const
+int64_t	CICalendarDateTime::DaysSince1970() const
 {
 	// Add days betweenn 1970 and current year (ignoring leap days)
-	int32_t result = (mYear - 1970) * 365L;
+	int64_t result = (mYear - 1970) * 365L;
 
 	// Add leap days between years
 	result += CICalendarUtils::LeapDaysSince1970(mYear - 1970);

@@ -1023,6 +1023,7 @@ bool CITIPProcessor::ReceiveRequest(const CICalendar& cal, const calstore::CCale
 
 					// Remove old one
 					calcopy->RemoveVEvent(fevent);
+					found = NULL;
 				}
 
 				updated_seq++;
@@ -1233,15 +1234,17 @@ bool CITIPProcessor::ReceiveRequest(const CICalendar& cal, const calstore::CCale
 		}
 		else if (dresult == CErrorDialog::eBtn3)
 		{
-			// Send REPLY: decline
-			attendee.RemoveAttributes(cICalAttribute_PARTSTAT);
-			attendee.AddAttribute(CICalendarAttribute(cICalAttribute_PARTSTAT, cICalAttribute_PARTSTAT_DECLINED));
-			
-			
-			if (msg != NULL)
-				SendiMIPReply(vevent, "2.0;Success", attendee, id, msg, eReplyDeclined);
-			else if (proto != NULL)
-				SendCalDAVReply(vevent, "2.0;Success", attendee, id, proto, eReplyDeclined);
+			// Send REPLY: decline (only reachable when has_attendee is true)
+			if (has_attendee)
+			{
+				attendee.RemoveAttributes(cICalAttribute_PARTSTAT);
+				attendee.AddAttribute(CICalendarAttribute(cICalAttribute_PARTSTAT, cICalAttribute_PARTSTAT_DECLINED));
+
+				if (msg != NULL)
+					SendiMIPReply(vevent, "2.0;Success", attendee, id, msg, eReplyDeclined);
+				else if (proto != NULL)
+					SendCalDAVReply(vevent, "2.0;Success", attendee, id, proto, eReplyDeclined);
+			}
 			result = true;
 		}
 		else

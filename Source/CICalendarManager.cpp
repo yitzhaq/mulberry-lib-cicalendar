@@ -35,6 +35,10 @@
 #include "diriterator.h"
 #include "cdfstream.h"
 
+#if __dest_os == __mac_os || __dest_os == __mac_os_x || __dest_os == __linux_os
+#include <unistd.h>
+#endif
+
 using namespace iCal;
 
 CICalendarManager* CICalendarManager::sICalendarManager = NULL;
@@ -68,9 +72,40 @@ void CICalendarManager::InitManager()
 		ScanDirectoryForTimezones(tzpath);
 	}
 	
-	// Eventually we need to read these from prefs - for now they are hard-coded to my personal prefs!
-	
-	SetDefaultTimezone(CICalendarTimezone(false, "US/Eastern"));
+	// Detect system timezone for the default
+	cdstring sys_tz;
+#if __dest_os == __mac_os || __dest_os == __mac_os_x || __dest_os == __linux_os
+	// Resolve /etc/localtime symlink to get Olson timezone name
+	char linkbuf[256];
+	ssize_t len = ::readlink("/etc/localtime", linkbuf, sizeof(linkbuf) - 1);
+	if (len > 0)
+	{
+		linkbuf[len] = 0;
+		// Extract timezone name after "zoneinfo/"
+		const char* p = ::strstr(linkbuf, "zoneinfo/");
+		if (p)
+			sys_tz = p + 9;
+	}
+	// Fallback: read /etc/timezone (Debian/Ubuntu)
+	if (sys_tz.empty())
+	{
+		cdifstream tzfile("/etc/timezone");
+		if (tzfile.good())
+		{
+			getline(tzfile, sys_tz);
+			sys_tz.trimspace();
+		}
+	}
+#elif __dest_os == __win32_os
+	// Win32 registry key TimeZoneKeyName gives Windows names
+	// ("Eastern Standard Time") not IANA names ("America/New_York").
+	// Proper conversion requires CLDR windowsZones.xml mapping table
+	// or Windows 10 ICU API (ucal_getDefaultTimeZone).
+	// Falls through to UTC until implemented.
+#endif
+	if (sys_tz.empty())
+		sys_tz = "UTC";
+	SetDefaultTimezone(CICalendarTimezone(false, sys_tz));
 #endif
 }
 

@@ -97,7 +97,7 @@ private:
 	static void SendiMIPReply(const CICalendarComponent* comp, const cdstring& status, const CICalendarProperty& attendee, const CIdentity* id, CMessage* msg, EDescriptionType type);
 	static void SendCalDAVReply(const CICalendarComponent* comp, const cdstring& status, const CICalendarProperty& attendee, const CIdentity* id, const calstore::CCalendarProtocol* proto, EDescriptionType type);
 
-	static bool ReceivePublish(const CICalendar& cal);
+	static bool ReceivePublish(const CICalendar& cal, CMessage* msg = NULL);
 	static bool ReceiveRequest(const CICalendar& cal, const calstore::CCalendarProtocol* proto = NULL, const CIdentity* tied_identity = NULL, CMessage* msg = NULL);
 	static bool ReceiveRefresh(const CICalendar& cal, const calstore::CCalendarProtocol* proto = NULL, const CIdentity* tied_identity = NULL, CMessage* msg = NULL);
 	static bool ReceiveCancel(const CICalendar& cal, const calstore::CCalendarProtocol* proto = NULL, const CIdentity* tied_identity = NULL, CMessage* msg = NULL);
@@ -137,6 +137,7 @@ private:
 	static void DetermineITIPBusyPeriods(const CICalendarVEvent* comp, CICalendarPeriodList& busy);
 	static void GetAttendeeForIdentity(const CICalendarComponent& comp, const CIdentity*& id, const CICalendarProperty*& attendee);
 	
+	static bool ValidateOrganiserAuth(const CICalendarComponent* comp, CMessage* msg);
 	static bool GetOrganiserAddress(const CICalendarComponent* comp, CCalendarAddress& addr);
 	static bool GetMatchingAttendee(CICalendarComponent* comp, const CICalendarProperty& attendee, CICalendarProperty*& found);
 };

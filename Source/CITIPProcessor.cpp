@@ -9,6 +9,8 @@
 
 #include "CActionManager.h"
 #include "CAddressList.h"
+#include "CAuthenticationResults.h"
+#include "CRFC822.h"
 #include "CCalendarProtocol.h"
 #include "CCalendarStoreManager.h"
 #include "CCalendarStoreNode.h"
@@ -605,7 +607,7 @@ void CITIPProcessor::ProcessAttachment(const char* data, CMessage* msg)
 	// Dispatch based on method
 	if (method.empty() || (::strcmpnocase(method, cICalMethod_PUBLISH) == 0))
 	{
-		ReceivePublish(cal);
+		ReceivePublish(cal, msg);
 	}
 	else if (::strcmpnocase(method, cICalMIMEMethod_REQUEST) == 0)
 	{
@@ -637,7 +639,7 @@ void CITIPProcessor::ProcessAttachment(const char* data, CMessage* msg)
 	}
 	else
 	{
-		ReceivePublish(cal);
+		ReceivePublish(cal, msg);
 	}
 }
 
@@ -819,14 +821,19 @@ void CITIPProcessor::ClearITIPRequest(CICalendarComponent& comp)
 	}
 }
 
-bool CITIPProcessor::ReceivePublish(const CICalendar& cal)
+bool CITIPProcessor::ReceivePublish(const CICalendar& cal, CMessage* msg)
 {
 	bool result = false;
 
-	// IMPORTANT
-	// We really need to check that the ORGANISER in the request matches any out-of-band sender
-	// information (e.g. email From address, SMIME/PGP users id etc. calendar user address). This
-	// is needed to prevent spoofing.
+	// Validate organizer identity via Authentication-Results (RFC 8601)
+	if (msg != NULL)
+	{
+		const CICalendarComponent* comp = !cal.GetVEvents().empty()
+			? (*cal.GetVEvents().begin()).second
+			: (!cal.GetVToDos().empty() ? (*cal.GetVToDos().begin()).second : NULL);
+		if (comp && !ValidateOrganiserAuth(comp, msg))
+			return false;
+	}
 
 	// Check for no calendars
 	if (calstore::CCalendarStoreManager::sCalendarStoreManager->GetReceivableCalendars().size() == 0)
@@ -951,10 +958,15 @@ bool CITIPProcessor::ReceiveRequest(const CICalendar& cal, const calstore::CCale
 {
 	bool result = false;
 
-	// IMPORTANT
-	// We really need to check that the ORGANISER in the request matches any out-of-band sender
-	// information (e.g. email From address, SMIME/PGP users id etc. calendar user address). This
-	// is needed to prevent spoofing.
+	// Validate organizer identity via Authentication-Results (RFC 8601)
+	if (msg != NULL)
+	{
+		const CICalendarComponent* comp = !cal.GetVEvents().empty()
+			? (*cal.GetVEvents().begin()).second
+			: (!cal.GetVToDos().empty() ? (*cal.GetVToDos().begin()).second : NULL);
+		if (comp && !ValidateOrganiserAuth(comp, msg))
+			return false;
+	}
 
 	// Check for no calendars
 	if (calstore::CCalendarStoreManager::sCalendarStoreManager->GetReceivableCalendars().size() == 0)
@@ -1271,10 +1283,15 @@ bool CITIPProcessor::ReceiveCancel(const CICalendar& cal, const calstore::CCalen
 {
 	bool result = false;
 
-	// IMPORTANT
-	// We really need to check that the ORGANISER in the request matches any out-of-band sender
-	// information (e.g. email From address, SMIME/PGP users id etc. calendar user address). This
-	// is needed to prevent spoofing.
+	// Validate organizer identity via Authentication-Results (RFC 8601)
+	if (msg != NULL)
+	{
+		const CICalendarComponent* comp = !cal.GetVEvents().empty()
+			? (*cal.GetVEvents().begin()).second
+			: (!cal.GetVToDos().empty() ? (*cal.GetVToDos().begin()).second : NULL);
+		if (comp && !ValidateOrganiserAuth(comp, msg))
+			return false;
+	}
 
 	// Check for no calendars
 	if (calstore::CCalendarStoreManager::sCalendarStoreManager->GetReceivableCalendars().size() == 0)
@@ -1398,10 +1415,15 @@ bool CITIPProcessor::ReceiveReply(const CICalendar& cal, const calstore::CCalend
 {
 	bool result = false;
 
-	// IMPORTANT
-	// We really need to check that the ORGANISER in the request matches any out-of-band sender
-	// information (e.g. email From address, SMIME/PGP users id etc. calendar user address). This
-	// is needed to prevent spoofing.
+	// Validate organizer identity via Authentication-Results (RFC 8601)
+	if (msg != NULL)
+	{
+		const CICalendarComponent* comp = !cal.GetVEvents().empty()
+			? (*cal.GetVEvents().begin()).second
+			: (!cal.GetVToDos().empty() ? (*cal.GetVToDos().begin()).second : NULL);
+		if (comp && !ValidateOrganiserAuth(comp, msg))
+			return false;
+	}
 
 	// Check for no calendars
 	if (calstore::CCalendarStoreManager::sCalendarStoreManager->GetReceivableCalendars().size() == 0)
@@ -1877,6 +1899,67 @@ bool CITIPProcessor::AttendeeIdentity(const CICalendarProperty& attendee, const 
 	CCalendarAddress caddr(txt, cdstring::null_str);
 	id = CPreferences::sPrefs->mIdentities.GetValue().GetIdentity(caddr);
 	return id != NULL;
+}
+
+bool CITIPProcessor::ValidateOrganiserAuth(const CICalendarComponent* comp, CMessage* msg)
+{
+	if (!CPreferences::sPrefs || !CPreferences::sPrefs->mAuthResultsEnabled.GetValue())
+		return true;
+
+	// Extract organizer domain
+	CCalendarAddress caddr;
+	if (!GetOrganiserAddress(comp, caddr))
+		return true;
+
+	cdstring org_uri = caddr.GetAddress();
+
+	// Strip mailto: prefix
+	if (::strncmpnocase(org_uri, "mailto:", 7) == 0)
+		org_uri.erase(0, 7);
+
+	// Extract domain from email address
+	const char* at = ::strchr(org_uri.c_str(), '@');
+	if (!at || !*(at + 1))
+		return true;
+	cdstring org_domain(at + 1);
+
+	// Get trusted authentication results from the message
+	std::vector<CAuthenticationResults> auth_results;
+	bool has_headers = msg->GetAuthenticationResults(auth_results);
+
+	if (!has_headers)
+	{
+		// Check if there are ANY A-R headers (before trust filtering)
+		if (!msg->HasHeader())
+			msg->ReadHeader();
+		if (msg->HasHeader())
+		{
+			cdstrvect raw;
+			if (CRFC822::HeaderSearchAll(msg->GetHeader(), cHDR_AUTHENTICATION_RESULTS, raw) && !raw.empty())
+			{
+				// A-R headers exist but none matched a trusted server
+				return CErrorHandler::PutCautionAlertRsrc(true, "CITIPProcessor::AuthUntrusted") == CErrorHandler::Ok;
+			}
+		}
+		// No A-R headers at all
+		return CErrorHandler::PutCautionAlertRsrc(true, "CITIPProcessor::AuthMissing") == CErrorHandler::Ok;
+	}
+
+	// Check auth level across all trusted results
+	int best_level = 0;
+	for (std::vector<CAuthenticationResults>::const_iterator iter = auth_results.begin();
+		iter != auth_results.end(); iter++)
+	{
+		int level = (*iter).GetAuthLevel(org_domain);
+		if (level > best_level)
+			best_level = level;
+	}
+
+	if (best_level > 0)
+		return true;
+
+	// Authentication failed — warn user
+	return CErrorHandler::PutCautionAlertRsrcStr(true, "CITIPProcessor::AuthFailed", org_domain.c_str()) == CErrorHandler::Ok;
 }
 
 bool CITIPProcessor::GetOrganiserAddress(const CICalendarComponent* comp, CCalendarAddress& caddr)

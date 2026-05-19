@@ -62,10 +62,10 @@ bool CICalendarVToDo::sort_for_display(const CICalendarComponentExpandedShared& 
 		status1 = eStatus_VToDo_NeedsAction;
 	if (status2 == eStatus_VToDo_None)
 		status2 = eStatus_VToDo_NeedsAction;
-    if (s1->HasCompleted())
-        status1 = eStatus_VToDo_Completed;
-    if (s2->HasCompleted())
-        status2 = eStatus_VToDo_Completed;
+	if (s1->HasCompleted())
+		status1 = eStatus_VToDo_Completed;
+	if (s2->HasCompleted())
+		status2 = eStatus_VToDo_Completed;
 	if (status1 != status2)
 	{
 		// More important ones at the top
@@ -215,6 +215,7 @@ cdstring CICalendarVToDo::GetStatusText() const
                     sout << "Completed";
                 break;
             }
+            /* fall through */
         case eStatus_VToDo_NeedsAction:
         case eStatus_VToDo_InProcess:
         default:
@@ -269,16 +270,15 @@ cdstring CICalendarVToDo::GetStatusText() const
 
 CICalendarVToDo::ECompletedStatus CICalendarVToDo::GetCompletionState() const
 {
-    if (HasCompleted())
-        return eDone;
+	if (HasCompleted())
+		return eDone;
 
 	switch(mStatus)
 	{
-    case eStatus_VToDo_None:
-        if (mPercentComplete == 100)
-            return eDone;
-        
-        // Fall through to NEEDS-ACTION logic
+	case eStatus_VToDo_None:
+		if (mPercentComplete == 100)
+			return eDone;
+		/* fall through */
 	case eStatus_VToDo_NeedsAction:
 	case eStatus_VToDo_InProcess:
 	default:

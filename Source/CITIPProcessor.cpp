@@ -1072,21 +1072,21 @@ bool CITIPProcessor::ReceiveRequest(const CICalendar& cal, const calstore::CCale
 		{
 			const CICalendarPropertyMap& props = vevent->GetProperties();
 			std::pair<CICalendarPropertyMap::const_iterator, CICalendarPropertyMap::const_iterator> attendees = props.equal_range(cICalProperty_ATTENDEE);
-			for(CICalendarPropertyMap::const_iterator iter = attendees.first; iter != attendees.second; iter++)
+			for(CICalendarPropertyMap::const_iterator aiter = attendees.first; aiter != attendees.second; aiter++)
 			{
 				// See if attendee maps to an identity
 				const CIdentity* attendee_id = NULL;
-				if (AttendeeIdentity((*iter).second, attendee_id) && (attendee_id == id))
+				if (AttendeeIdentity((*aiter).second, attendee_id) && (attendee_id == id))
 				{
 					// RSVP may be needed
-					if ((*iter).second.HasAttribute(cICalAttribute_RSVP))
+					if ((*aiter).second.HasAttribute(cICalAttribute_RSVP))
 					{
-						const cdstring& partstat = (*iter).second.GetAttributeValue(cICalAttribute_RSVP);
+						const cdstring& partstat = (*aiter).second.GetAttributeValue(cICalAttribute_RSVP);
 						rsvp = (partstat.compare(cICalAttribute_RSVP_TRUE, true) == 0);
 					}
 
 					has_attendee = true;
-					attendee = (*iter).second;
+					attendee = (*aiter).second;
 					break;
 				}
 			}
@@ -1095,28 +1095,28 @@ bool CITIPProcessor::ReceiveRequest(const CICalendar& cal, const calstore::CCale
 		{
 			const CICalendarPropertyMap& props = vevent->GetProperties();
 			std::pair<CICalendarPropertyMap::const_iterator, CICalendarPropertyMap::const_iterator> attendees = props.equal_range(cICalProperty_ATTENDEE);
-			for(CICalendarPropertyMap::const_iterator iter = attendees.first; iter != attendees.second; iter++)
+			for(CICalendarPropertyMap::const_iterator aiter = attendees.first; aiter != attendees.second; aiter++)
 			{
 				// See if attendee maps to an identity
-				if (AttendeeIdentity((*iter).second, id))
+				if (AttendeeIdentity((*aiter).second, id))
 				{
 					// The PARTSTAT must be NEEDS-ACTION (or not present)
-					if ((*iter).second.HasAttribute(cICalAttribute_PARTSTAT))
+					if ((*aiter).second.HasAttribute(cICalAttribute_PARTSTAT))
 					{
-						const cdstring& partstat = (*iter).second.GetAttributeValue(cICalAttribute_PARTSTAT);
+						const cdstring& partstat = (*aiter).second.GetAttributeValue(cICalAttribute_PARTSTAT);
 						if (partstat.compare(cICalAttribute_PARTSTAT_NEEDSACTION, true) != 0)
 							continue;
 					}
-					
+
 					// RSVP may be needed
-					if ((*iter).second.HasAttribute(cICalAttribute_RSVP))
+					if ((*aiter).second.HasAttribute(cICalAttribute_RSVP))
 					{
-						const cdstring& partstat = (*iter).second.GetAttributeValue(cICalAttribute_RSVP);
+						const cdstring& partstat = (*aiter).second.GetAttributeValue(cICalAttribute_RSVP);
 						rsvp = (partstat.compare(cICalAttribute_RSVP_TRUE, true) == 0);
 					}
 
 					has_attendee = true;
-					attendee = (*iter).second;
+					attendee = (*aiter).second;
 					break;
 				}
 			}
@@ -1698,9 +1698,9 @@ bool CITIPProcessor::CheckForConflicts(const CICalendarVEvent* comp)
 		// Check busy for each period - if any items are in the list, then we have a conflict
 		for(CICalendarPeriodList::const_iterator iter2 = busy.begin(); iter2 != busy.end(); iter2++)
 		{
-			CICalendarFreeBusyList busy;
-			(*iter1)->GetFreeBusy(*iter2, busy);
-			if (busy.size() != 0)
+			CICalendarFreeBusyList freebusy;
+			(*iter1)->GetFreeBusy(*iter2, freebusy);
+			if (freebusy.size() != 0)
 				return true;
 		}
 	}

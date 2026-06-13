@@ -42,7 +42,7 @@ CICalendarTimezone::CICalendarTimezone()
 int CICalendarTimezone::operator==(const CICalendarTimezone& comp) const
 {
 	// Always match if any one of them is 'floating'
-	if (!mUTC && mTimezone.empty() || !comp.mUTC && comp.mTimezone.empty())
+	if ((!mUTC && mTimezone.empty()) || (!comp.mUTC && comp.mTimezone.empty()))
 		return 1;
 	else if (mUTC ^ comp.mUTC)
 		return 0;

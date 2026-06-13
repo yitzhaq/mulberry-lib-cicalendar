@@ -342,7 +342,7 @@ void CICalendarVAlarm::InitNextTrigger()
 	CICalendarDateTime trigger;
 	GetFirstTrigger(trigger);
 
-	while(mDoneCount < mRepeats)
+	while(mDoneCount < static_cast<uint32_t>(mRepeats))
 	{
 		// See if next trigger is later than now
 		CICalendarDateTime next_trigger = trigger + mRepeatInterval;
@@ -355,7 +355,7 @@ void CICalendarVAlarm::InitNextTrigger()
 	// Check for completion
 	if ((trigger == mLastTrigger) || (nowutc - trigger).GetTotalSeconds() > (24 * 60 * 60))
 	{
-		if (mDoneCount == mRepeats)
+		if (mDoneCount == static_cast<uint32_t>(mRepeats))
 		{
 			mAlarmStatus = eAlarm_Status_Completed;
 			return;
@@ -405,7 +405,7 @@ bool CICalendarVAlarm::AlarmTriggered(CICalendarDateTime& dt)
 	// Updated cached values
 	mLastTrigger = dt;
 
-	if (mDoneCount < mRepeats)
+	if (mDoneCount < static_cast<uint32_t>(mRepeats))
 	{
 		dt = mNextTrigger = mNextTrigger + mRepeatInterval;
 		mDoneCount++;

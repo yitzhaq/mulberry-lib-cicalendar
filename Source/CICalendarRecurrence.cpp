@@ -624,7 +624,7 @@ void CICalendarRecurrence::Expand(const CICalendarDateTime& start, const CICalen
 	}
 
 	// Is the current cache complete or does it extaned past the requested range end
-	if (!mCached || !mFullyCached && (mCacheUpto < range.GetEnd()))
+	if (!mCached || (!mFullyCached && (mCacheUpto < range.GetEnd())))
 	{
 		CICalendarPeriod cache_range(range);
 		
@@ -1628,13 +1628,13 @@ void CICalendarRecurrence::BySetPosLimit(CICalendarDateTimeList& dates) const
 		if (*iter > 0)
 		{
 			// Positive values are offset from the start
-			if ((*iter) <= input_size)
+			if (static_cast<size_t>(*iter) <= input_size)
 				output.push_back(dates[*iter - 1]);
 		}
 		else if (*iter < 0)
 		{
 			// Negative values are offset from the end
-			if (-(*iter) <= input_size)
+			if (static_cast<size_t>(-(*iter)) <= input_size)
 				output.push_back(dates[input_size + *iter]);
 		}
 	}

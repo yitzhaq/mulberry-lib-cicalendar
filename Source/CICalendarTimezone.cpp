@@ -29,13 +29,14 @@
 
 using namespace iCal;
 
-CICalendarTimezone::CICalendarTimezone()
+CICalendarTimezone::CICalendarTimezone() :
+	mUTC(false)
 {
 	// Copy defauilt timezone if it exists
 	if (CICalendarManager::sICalendarManager != NULL)
 	{
 		_copy_CICalendarTimezone(CICalendarManager::sICalendarManager->GetDefaultTimezone());
-		
+
 	}
 }
 

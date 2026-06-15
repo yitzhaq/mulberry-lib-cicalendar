@@ -212,7 +212,7 @@ void CICalendarSync::Sync()
 int CICalendarSync::CompareComponentVersions(const CICalendarComponent* comp1, const CICalendarComponent* comp2)
 {
 	// First check SEQ
-	if (comp1->GetSeq() != comp2->GetSeq())
+	if ((comp1 != NULL) && (comp2 != NULL) && (comp1->GetSeq() != comp2->GetSeq()))
 		return comp1->GetSeq() < comp2->GetSeq() ? -1 : 1;
 	
 	// Compare last modified

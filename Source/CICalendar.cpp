@@ -83,6 +83,7 @@ CICalendar::CICalendar()
 
 	mReadOnly = false;
 	mDirty = false;
+	mTotalReplace = false;
 
 	AddDefaultProperties();
 

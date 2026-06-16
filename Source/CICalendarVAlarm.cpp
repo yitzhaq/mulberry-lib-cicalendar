@@ -67,6 +67,7 @@ void CICalendarVAlarm::_copy_CICalendarVAlarm(const CICalendarVAlarm& copy)
 	mRepeats = copy.mRepeats;
 	mRepeatInterval = copy.mRepeatInterval;
 	
+	mStatusInit = copy.mStatusInit;
 	mAlarmStatus = copy.mAlarmStatus;
 	mLastTrigger = copy.mLastTrigger;
 	mNextTrigger = copy.mNextTrigger;

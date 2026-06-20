@@ -372,6 +372,11 @@ void CITIPProcessor::SendCalDAVRequest(const CCalendarAddressList* addrs, const 
 
 void CITIPProcessor::SendiMIPReply(const CICalendarComponent* comp, const cdstring& status, const CICalendarProperty& attendee, const CIdentity* id, CMessage* msg, EDescriptionType type)
 {
+	// Reject a UID-less component: AddComponent below would delete the clone
+	// (CICalendarComponentDB requires a UID), leaving it dangling when reused.
+	if (comp->GetMapKey().empty())
+		return;
+
 	cdstring subject = "Re: ";
 	cdstring summary;
 	if ((msg != NULL) && !msg->GetEnvelope()->GetSubject().empty())
@@ -436,6 +441,11 @@ void CITIPProcessor::SendiMIPReply(const CICalendarComponent* comp, const cdstri
 
 void CITIPProcessor::SendCalDAVReply(const CICalendarComponent* comp, const cdstring& status, const CICalendarProperty& attendee, const CIdentity* id, const calstore::CCalendarProtocol* proto, EDescriptionType type)
 {
+	// Reject a UID-less component (see SendiMIPReply): AddComponent would delete
+	// the clone, leaving it dangling when reused below.
+	if (comp->GetMapKey().empty())
+		return;
+
 	// Get Outbox URL for CalDAV server
 	cdstring inbox;
 	cdstring outbox;

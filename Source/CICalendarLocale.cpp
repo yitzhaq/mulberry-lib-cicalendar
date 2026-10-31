@@ -29,6 +29,13 @@
 #include "CStringResources.h"
 #endif
 
+#include <cctype>
+#include <cstring>
+
+#if __dest_os == __linux_os
+#include <langinfo.h>
+#endif
+
 using namespace iCal;
 
 bool CICalendarLocale::s24HourTime = false;
@@ -119,13 +126,10 @@ bool CICalendarLocale::Use24HourTime()
 		s24HourTime = (::wcschr(buffer, 'H') != 0);
 #endif
 #else
-		time_t date = ::time(NULL);
-		struct tm* now_tm = ::localtime(&date);
-		now_tm->tm_hour = 23;
-		cdstring result;
-		result.reserve(256);
-		::strftime(result.c_str_mod(), 256,"%X", now_tm);
-		s24HourTime = (result[(cdstring::size_type)0] == '2');
+		// Locale time format may have text before the hour (e.g. "kl. %H.%M") or a
+		// day period marker with a 24 hour clock (e.g. "%OH:%OM:%OS %p") so look for
+		// a 12 hour conversion rather than inspecting formatted output
+		s24HourTime = (FindConversion(::nl_langinfo(T_FMT), "Ilr") == NULL);
 #endif
 
 		_init_done = true;
@@ -168,20 +172,40 @@ bool CICalendarLocale::UseDDMMDate()
 		sDDMMDate = (::wcschr(buffer, '1') != 0);
 #endif
 #else
-		time_t now = ::time(NULL);
-		struct tm* now_tm = ::localtime(&now);
-		now_tm->tm_mon = 0;
-		now_tm->tm_mday = 31;
-		cdstring result;
-		result.reserve(256);
-		::strftime(result.c_str_mod(), 256, "%x", now_tm);
-
-		// If first character is a digit assuming day is first in this lcoale
-		sDDMMDate = (result[(cdstring::size_type)0] == '3');
+		// Locale date format may start with a weekday or year so compare the positions
+		// of the day and month conversions (%D and %F put month before day)
+		const char* format = ::nl_langinfo(D_FMT);
+		const char* day = FindConversion(format, "de");
+		const char* month = FindConversion(format, "mbBhDF");
+		sDDMMDate = (day != NULL) && ((month == NULL) || (day < month));
 #endif
 
 		_init_done_date = true;
 	}
 	
 	return sDDMMDate;
+}
+
+// Find first strftime conversion in format matching one of conversions
+const char* CICalendarLocale::FindConversion(const char* format, const char* conversions)
+{
+	for(const char* p = format; *p != 0; p++)
+	{
+		if (*p != '%')
+			continue;
+
+		// Skip flags, field width and E/O modifiers
+		p++;
+		while((*p != 0) && ((::strchr("_-0^#", *p) != NULL) || ::isdigit((unsigned char)*p)))
+			p++;
+		if ((*p == 'E') || (*p == 'O'))
+			p++;
+		if (*p == 0)
+			break;
+
+		if (::strchr(conversions, *p) != NULL)
+			return p;
+	}
+
+	return NULL;
 }

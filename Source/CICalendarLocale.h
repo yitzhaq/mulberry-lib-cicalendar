@@ -47,6 +47,8 @@ private:
 	static bool s24HourTime;
 	static bool sDDMMDate;
 
+	static const char* FindConversion(const char* format, const char* conversions);
+
 	CICalendarLocale() {}
 	~CICalendarLocale() {}
 
